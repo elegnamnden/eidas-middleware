@@ -1,0 +1,44 @@
+FROM governikus/zulu-openjdk:8u172
+
+MAINTAINER Benny Prange <benny.prange@governikus.de>
+
+# Define the application version for the subsequent application images
+ENV VERSION=1.0.6
+# Define the spring boot configuration directory
+ENV CONFIG_DIR=/opt/eidas-middleware/configuration
+
+# Create a user that is the same in all application images
+RUN addgroup -S eidas-middleware && adduser -S -u 1000 -G eidas-middleware eidas-middleware
+
+# Update and install wget to download the jar
+RUN apk --no-cache upgrade -a && \
+    apk --no-cache add wget
+
+# Change owner of /opt/eidas-middleware
+RUN mkdir -p /opt/eidas-middleware &&\
+    chown eidas-middleware /opt/eidas-middleware &&\
+    chgrp eidas-middleware /opt/eidas-middleware
+
+
+# Define the location of the configuration directory inside of the container
+ENV SPRING_CONFIG_ADDITIONAL_LOCATION=file:${CONFIG_DIR}/
+
+# Expose the ports we're interested in
+EXPOSE 8443
+
+
+# Fix the folder permissions because mounting with -v will mount with root
+RUN mkdir -p /opt/eidas-middleware/database &&\
+    chown eidas-middleware /opt/eidas-middleware/database &&\
+    chgrp eidas-middleware /opt/eidas-middleware/database
+
+# Change to the eidas user and directory
+USER eidas-middleware
+WORKDIR /opt/eidas-middleware
+
+# Add built eidas middleware application
+ADD eidas-middleware/target/eidas-middleware.jar eidas-middleware.jar
+RUN mkdir -p ${CONFIG_DIR}
+
+#ENTRYPOINT ["java", "-jar", "./eidas-middleware.jar"]
+ENTRYPOINT ["java","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8218","-jar","eidas-middleware.jar"]
