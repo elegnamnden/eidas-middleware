@@ -8,6 +8,7 @@ ENV SPRING_CONFIG_ADDITIONAL_LOCATION=file:${CONFIG_DIR}/
 
 # Expose the ports we're interested in
 EXPOSE 8443
+EXPOSE 10000
 
 RUN mkdir -p /opt/eidas-middleware
 WORKDIR /opt/eidas-middleware
