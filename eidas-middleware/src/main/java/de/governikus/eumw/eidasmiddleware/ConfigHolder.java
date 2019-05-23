@@ -21,6 +21,10 @@ import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.Properties;
 
+import de.governikus.eumw.eidasmiddleware.pkcs11.EidsaSignerCredentialConfiguration;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.opensaml.security.x509.BasicX509Credential;
 import org.springframework.stereotype.Component;
 
 import de.governikus.eumw.eidascommon.ContextPaths;
@@ -30,7 +34,7 @@ import de.governikus.eumw.eidasstarterkit.EidasContactPerson;
 import de.governikus.eumw.eidasstarterkit.EidasOrganisation;
 import de.governikus.eumw.poseidas.cardbase.StringUtil;
 import lombok.extern.slf4j.Slf4j;
-
+import se.swedenconnect.opensaml.pkcs11.credential.PKCS11Credential;
 
 /**
  * Load the properties for the middleware and the respective key stores and certificates
@@ -39,6 +43,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ConfigHolder
 {
+
+  private static final Log LOG = LogFactory.getLog(ConfigHolder.class);
 
   private static final String CONFIG_FILE_NAME = "eidasmiddleware.properties";
 
@@ -292,6 +298,16 @@ public class ConfigHolder
    */
   public X509KeyPair getAppSignatureKeyPair() throws IOException, GeneralSecurityException
   {
+    // Check is a HSM key is configured if so, then read key and cert form PKCS#11 configured token
+    // The key should be read each time from the Credential to allow round robin selection of multiple PKCS#11 keys.
+    BasicX509Credential pkcs11SignCredential = EidsaSignerCredentialConfiguration.getSamlMessageSigningCredential();
+    if (pkcs11SignCredential != null){
+      signKey = getPKCS11Credentials(pkcs11SignCredential);
+      return signKey;
+    }
+
+    //Legacy configured key on disk.
+
     if (signKey == null)
     {
       synchronized (LOCKOBJECT)
@@ -316,8 +332,27 @@ public class ConfigHolder
     }
   }
 
+  private static X509KeyPair getPKCS11Credentials(BasicX509Credential pkcs11Credential) {
+    X509KeyPair keyPair = new X509KeyPair(
+      pkcs11Credential.getPrivateKey(),
+      new X509Certificate[]{pkcs11Credential.getEntityCertificate()}
+    );
+    LOG.info("Selecting PKCS#11 key from provider: "+ ((PKCS11Credential)pkcs11Credential).getCurrentKeyProvider());
+    return keyPair;
+  }
+
   private X509KeyPair getAppDecryptionKeyPair() throws IOException, GeneralSecurityException
   {
+    // Check is a HSM key is configured if so, then read key and cert form PKCS#11 configured token
+    // The key should be read each time from the Credential to allow round robin selection of multiple PKCS#11 keys.
+    // The same key is selected as for signing simply because the decryption key is not used for any producation task.
+    // It is only used in demos
+    BasicX509Credential pkcs11EncCredential = EidsaSignerCredentialConfiguration.getSamlMessageEncryptionCredential();
+    if (pkcs11EncCredential != null){
+      cryptKey = getPKCS11Credentials(pkcs11EncCredential);
+      return cryptKey;
+    }
+
     if (cryptKey == null)
     {
       synchronized (LOCKOBJECT)
