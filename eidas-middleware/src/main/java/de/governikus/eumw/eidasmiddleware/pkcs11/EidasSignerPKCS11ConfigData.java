@@ -31,8 +31,8 @@ public class EidasSignerPKCS11ConfigData {
     private String hsmSlot;
     int hsmSlotListIndex;
     int hsmSlotListIndexMaxRange;
-    private String keySourcePass, keySourceAlias, keySourceCertLocation, keySourceKeyLocation;
-    private String keySourcePassEnc, keySourceAliasEnc, keySourceCertLocationEnc, keySourceKeyLocationEnc;
+    private String keySourceAlias, keySourceCertLocation, keySourceKeyLocation;
+    private String keySourceAliasEnc, keySourceCertLocationEnc, keySourceKeyLocationEnc;
     private List<SoftHsmCredentialConfiguration> credentialConfigurationList;
 
     public EidasSignerPKCS11ConfigData(String pkcs11ConfigLocation, String pkcs11Pin) throws IOException {
@@ -47,11 +47,9 @@ public class EidasSignerPKCS11ConfigData {
         hsmSlot = prop.getProperty("hsmSlot");
         hsmSlotListIndex = getInt(prop.getProperty("hsmSlotListIndex"));
         hsmSlotListIndexMaxRange = getInt(prop.getProperty("hsmSlotListIndexMaxRange"));
-        keySourcePass = prop.getProperty("keySourcePass");
         keySourceAlias = prop.getProperty("keySourceAlias");
         keySourceCertLocation = prop.getProperty("keySourceCertLocation");
         keySourceKeyLocation = prop.getProperty("keySourceKeyLocation");
-        keySourcePassEnc = prop.getProperty("keySourcePassEnc");
         keySourceAliasEnc = prop.getProperty("keySourceAliasEnc");
         keySourceCertLocationEnc = prop.getProperty("keySourceCertLocationEnc");
         keySourceKeyLocationEnc = prop.getProperty("keySourceKeyLocationEnc");
@@ -112,20 +110,12 @@ public class EidasSignerPKCS11ConfigData {
         return pkcs11Provider;
     }
 
-    public String getKeySourcePass() {
-        return keySourcePass;
-    }
-
     public String getKeySourceAlias() {
         return keySourceAlias;
     }
 
     public String getKeySourceCertLocation() {
         return keySourceCertLocation;
-    }
-
-    public String getKeySourcePassEnc() {
-        return keySourcePassEnc;
     }
 
     public String getKeySourceAliasEnc() {

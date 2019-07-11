@@ -36,14 +36,14 @@ public class EidsaSignerCredentialConfiguration {
                         getCert(pkcs11Config.getKeySourceCertLocation()),
                         pkcs11Provider.getProviderNameList(),
                         pkcs11Config.getKeySourceAlias(),
-                        pkcs11Config.getKeySourcePass()
+                        pkcs11Pin
                 );
                 log.info("Loaded SAML signing key from PKCS#11 provider source");
                 samlMessageEncryptionCredential = new PKCS11Credential(
                         getCert(pkcs11Config.getKeySourceCertLocationEnc()),
                         pkcs11Provider.getProviderNameList(),
                         pkcs11Config.getKeySourceAliasEnc(),
-                        pkcs11Config.getKeySourcePassEnc()
+                        pkcs11Pin
                 );
                 log.info("Loaded SAML encryption key from PKCS#11 provider source");
                 JCEMapper.setProviderId(null);
