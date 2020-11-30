@@ -30,7 +30,7 @@ public class EidasSigner
 
   private static final String SAML_SIGNING = "samlsigning";
 
-  private static final String DIGEST_DEFAULT = "SHA256-PSS";
+  private static String DIGEST_DEFAULT = "SHA256-PSS";
 
   static final String DIGEST_NONSPEC = "SHA256";
 
@@ -53,6 +53,11 @@ public class EidasSigner
    * specifies whether to sign and whether to include the signature certificate
    */
   private final SigEntryType sigType;
+
+  static {
+    String envHashSetting = System.getenv("EIDAS_SIGNER_DEFAULT_HASH_ALGORITHM");
+    DIGEST_DEFAULT = envHashSetting != null ? envHashSetting : DIGEST_DEFAULT;
+  }
 
   private EidasSigner(boolean includeCert, PrivateKey key, X509Certificate cert, String digestAlg)
   {
