@@ -17,4 +17,4 @@ WORKDIR /opt/eidas-middleware
 ADD eidas-middleware/target/eidas-middleware.jar eidas-middleware.jar
 RUN mkdir -p ${CONFIG_DIR}
 
-ENTRYPOINT ["java", "-Dorg.apache.xml.security.ignoreLineBreaks=true", "-jar", "./eidas-middleware.jar"]
+ENTRYPOINT ["java", "-jar", "./eidas-middleware.jar"]

@@ -18,4 +18,4 @@ ADD eidas-middleware/target/eidas-middleware.jar eidas-middleware.jar
 RUN mkdir -p ${CONFIG_DIR}
 
 #ENTRYPOINT ["java", "-jar", "./eidas-middleware.jar"]
-ENTRYPOINT ["java","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8218","-Dorg.apache.xml.security.ignoreLineBreaks=true","-jar","eidas-middleware.jar"]
+ENTRYPOINT ["java","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8218","-jar","eidas-middleware.jar"]

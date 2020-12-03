@@ -31,12 +31,19 @@ public class EIDASMiddlewareApplication
 
   public static void main(String[] args)
   {
+    // Get Env variable to determine SHA1 policy
+    String allowSha1InTls = System.getenv("ALLOW_SHA1_IN_TLS_CERTS");
+    String sha1Policy = allowSha1InTls != null && allowSha1InTls.equalsIgnoreCase("true")
+      ? ""
+      : "SHA1, ";
+
     // do not remove bouncy without consideration, it will impact ECDH
     Security.addProvider(new BouncyCastleProvider());
     System.setProperty("jdk.tls.namedGroups", "secp521r1,secp384r1,secp256r1,secp224r1");
     System.setProperty("jdk.tls.ephemeralDHKeySize", "2048");
+    System.setProperty("org.apache.xml.security.ignoreLineBreaks", "true");
     Security.setProperty("jdk.tls.disabledAlgorithms",
-                         "SSLv3, RC4, MD5, SHA1, DSA, DH keySize < " + Utils.MIN_KEY_SIZE_RSA_TLS
+                         "SSLv3, RC4, MD5, " + sha1Policy + "DSA, DH keySize < " + Utils.MIN_KEY_SIZE_RSA_TLS
                                                        + ", ECDH keySize < " + Utils.MIN_KEY_SIZE_EC_TLS
                                                        + ", EC keySize < " + Utils.MIN_KEY_SIZE_EC_TLS
                                                        + ", RSA keySize < " + Utils.MIN_KEY_SIZE_RSA_TLS);
